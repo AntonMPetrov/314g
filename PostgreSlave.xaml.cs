@@ -23,8 +23,22 @@ using System.Diagnostics;
 
 namespace PostgreSlave
 {
+    enum NodeToTest
+    {
+        Master,
+        Slave
+    }
+
+    public enum DBTestResult
+    {
+        Success,
+        ReadOnly,
+        NoDB
+    }
     public partial class MainWindow : Window
     {
+        const NodeToTest testMaster = NodeToTest.Master;
+        const NodeToTest testSlave = NodeToTest.Slave;
         public const string DefaultDBConnectionString = ";User Id=postgres;Password=postgres;Database=";
         public string MasterConnectionString = ";User Id=postgres;Password=postgres;Database=";
         public string SlaveConnectionString = ";User Id=postgres;Password=postgres;Database=";
@@ -91,9 +105,9 @@ namespace PostgreSlave
             {
                 CreateTestTable();
             }
-            Slave_State.Text = TestSlave() ? "Slave" : "DOWN!";
+            Slave_State.Text = TestNode(testSlave) ? "Slave" : "DOWN!";
 
-            if (TestDB(SlaveConnectionString, "insert into testofcluster values ('1')") == 1)
+            if (TestDB(SlaveConnectionString, "insert into testofcluster values ('1')") == DBTestResult.ReadOnly)
             {
                 Slave_State.Text = "Slave";
             }
@@ -103,7 +117,7 @@ namespace PostgreSlave
                 Slave_State.Text = "Master";
             }
 
-            if (TestMaster()) 
+            if (TestNode(testMaster)) 
             {
                 Master_State.Text = "Master";
                 NpgsqlConnection connectionToDB = new NpgsqlConnection(MasterConnectionString);
@@ -132,10 +146,9 @@ namespace PostgreSlave
                 }
                 Replication_Master_Status.Text = "DOWN!";
             }
-            if ((Slave_State.Text == "Slave") && (Master_State.Text == "Master") && (Replication_Master_Status.Text == "Working")) 
-            {
-                Slave_Monitor.IsEnabled = true;
-            }
+
+            Slave_Monitor.IsEnabled = (Slave_State.Text == "Slave") && (Master_State.Text == "Master") && (Replication_Master_Status.Text == "Working");
+
             Program_State.Text = $"Done. ({CountOfTest})";
             MasterConnectionString = DefaultDBConnectionString;
             SlaveConnectionString = DefaultDBConnectionString;            
@@ -150,7 +163,7 @@ namespace PostgreSlave
             MessageBox.Show("После нажатия кнопки \"ОК\" и в случае если мастер будет недоступен, слейв перейдёт в режим записи.", "Внимание!", MessageBoxButton.OK, MessageBoxImage.Warning);
             while (true)
             {
-                if (!TestMaster() ) 
+                if (!TestNode(testMaster)) 
                     break;
             }
             BecameSlaveToMaster();
@@ -163,7 +176,7 @@ namespace PostgreSlave
 
         public bool CheckIP(string ip)
         {
-            bool res;
+            bool output;
             try
             {
                 Ping pingSender = new Ping();
@@ -171,29 +184,29 @@ namespace PostgreSlave
                 PingReply reply = pingSender.Send(address);
                 if (reply.Status == IPStatus.Success)
                 {
-                    res = true;
+                    output = true;
                 }
                 else
                 {
                     Running_task.Text += $"(NO {ip}) ";                    
-                    res = false;
+                    output = false;
                 }
             }
             catch (Exception a)
             {
                 a.ToString();
                 MessageBox.Show($"Incorrect IP: {ip}");
-                res = false;
+                output = false;
             }
-            return res;
+            return output;
         }
 
         public bool BecameSlaveToMaster()
         {
             Running_task.Text = $"Checking primary IP({Primary_IP.Text})... ";
             //сделать циклическую проверку
-            string IP = Primary_IP.Text;
-            Task.Factory.StartNew(() => Reconnect(IP));
+            string ip = Primary_IP.Text;
+            Task.Factory.StartNew(() => Reconnect(ip));
             while (CheckIP(Primary_IP.Text) == true) ;//System.Windows.MessageBox.Show("Primary IP is still busy! Check you network connection.");             
             System.IO.File.WriteAllText(@"C:\Program Files\PostgreSQL\9.4\data\startmaster", "Go!");
             Running_task.Text = "Became slave to master...";
@@ -205,9 +218,9 @@ namespace PostgreSlave
 
         public static IPAddress GetDefaultGateway()
         {
-            var interFace = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault();
-            if (interFace == null) return null;
-            var addressDG = interFace.GetIPProperties().GatewayAddresses.FirstOrDefault();
+            var @interface = NetworkInterface.GetAllNetworkInterfaces().FirstOrDefault();
+            if (@interface == null) return null;
+            var addressDG = @interface.GetIPProperties().GatewayAddresses.FirstOrDefault();
             return addressDG.Address;
         }
 
@@ -262,44 +275,43 @@ namespace PostgreSlave
             }
         }
 
-        public bool TestSlave()
+        private bool TestNode(NodeToTest nodeToTest)
         {
-            bool res = false;
-            if (TestDB(SlaveConnectionString, "select count(*) from testofcluster") == 0)
-                 res = true;
-            return res;
-        }
-
-        public bool TestMaster()
-        {
-            bool res = false;
-            if (TestDB(MasterConnectionString, "insert into testofcluster values ('1')") == 0)
+            bool output = false;
+            switch (nodeToTest)
             {
-                res = true;
+                case testMaster:
+                    if (TestDB(SlaveConnectionString, "select count(*) from testofcluster") == DBTestResult.Success)
+                        output = true;
+                    break;
+                case testSlave:
+                    if (TestDB(SlaveConnectionString, "select count(*) from testofcluster") == DBTestResult.Success)
+                        output = true;
+                    break;
             }
 
-            return res;
+            return output;
         }
-
+       
         public bool CreateTestTable()
         {
-            bool res;
-            if (TestDB(MasterConnectionString, "create table testofcluster (hint int)") == 0)
+            bool output;
+            if (TestDB(MasterConnectionString, "create table testofcluster (hint int)") == DBTestResult.Success)
             {
                 createTestTableFlag = true;
-                res = true;
+                output = true;
             }
             else
             {
                 MessageBox.Show($"Can't create test-table 'testofcluster' in database '{Testing_DB.Text}'.");
-                res = false;
+                output = false;
             }
-            return res;
+            return output;
         }
 
-        public int TestDB(string connectionString, string executeCommand)
+        public DBTestResult TestDB(string connectionString, string executeCommand)
         {
-            int output;
+            DBTestResult output;
             NpgsqlConnection connectionToDB = null;
             try
             {
@@ -314,23 +326,23 @@ namespace PostgreSlave
                     CountOfTest = 0;
                 }
                 
-                output = 0;
+                output = DBTestResult.Success;
             }
             catch (Exception ex)
             {
                 if (ex.Message == "ОШИБКА: 25006: в транзакции в режиме \"только чтение\" нельзя выполнить INSERT")
                 {
-                    output = 1;
+                    output = DBTestResult.ReadOnly;
                 }
                 else if (ex.Message == "ОШИБКА: 42P07: отношение \"testofcluster\" уже существует")
                 {
-                    output = 0;
+                    output = DBTestResult.Success;
                 }
                 else
                 {
                     Running_task.Text += "Database isn't available! ";
                     Error_List.Text = ex.Message;
-                    output = 2;
+                    output = DBTestResult.NoDB;
                 }
             }
             finally
@@ -344,13 +356,13 @@ namespace PostgreSlave
         public bool BackupSlaveSetting()
         {
             string directoryPath = @"C:\Program Files\PostgreSQL\9.4\backupSlaveSetting";
-            bool res;
+            bool output;
             try
             {
                 if (Directory.Exists(directoryPath))
                 {
                     Error_List.Text = "Backup exists already (backupSlaveSetting). Delete it to proved new save.";
-                    res = false;
+                    output = false;
                 }
                 else
                 {
@@ -358,16 +370,16 @@ namespace PostgreSlave
                     File.Copy(@"C:\Program Files\PostgreSQL\9.4\data\recovery.conf", @"C:\Program Files\PostgreSQL\9.4\backupSlaveSetting\recovery.conf");
                     File.Copy(@"C:\Program Files\PostgreSQL\9.4\data\postgresql.conf", @"C:\Program Files\PostgreSQL\9.4\backupSlaveSetting\postgresql.conf");
                     File.Copy(@"C:\Program Files\PostgreSQL\9.4\data\postgresql.auto.conf", @"C:\Program Files\PostgreSQL\9.4\backupSlaveSetting\postgresql.auto.conf");
-                    res = true;
+                    output = true;
                 }
             }
             catch (Exception ex)
             {
                 Error_List.Text = $"Backup is failed: {ex}";
-                res =  false;
+                output =  false;
             }
 
-            return res;
+            return output;
         }
 
         public void CheckIPsAvalaible()
