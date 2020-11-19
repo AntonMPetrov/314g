@@ -11,8 +11,8 @@
         <TextBlock Name="Error_List" HorizontalAlignment="Left" Margin="10,203,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="54" Width="497" RenderTransformOrigin="0.968,0.481" Grid.Row="1"/>
         <TextBlock x:Name="Text_Copy" HorizontalAlignment="Left" Margin="10,34,0,0" TextWrapping="Wrap" Text="This node" VerticalAlignment="Top" Height="21" Width="58"/>
         <TextBlock x:Name="Text_Copy1" HorizontalAlignment="Left" Margin="10,60,0,0" TextWrapping="Wrap" Text="Other node" VerticalAlignment="Top" Height="35" Width="58"/>
-        <TextBox Name="Slave_IP" HorizontalAlignment="Left" Margin="72,34,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="Slave_IP_TextChanged"/>
-        <TextBox Name="Master_IP" HorizontalAlignment="Left" Margin="72,60,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="Master_IP_TextChanged"/>
+        <TextBox Name="Slave_IP" HorizontalAlignment="Left" Margin="72,34,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="IP_TextChanged"/>
+        <TextBox Name="Master_IP" HorizontalAlignment="Left" Margin="72,60,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="IP_TextChanged"/>
         <TextBlock x:Name="Text_Copy6" HorizontalAlignment="Left" Margin="78,8,0,0" TextWrapping="Wrap" Text="IP addres" VerticalAlignment="Top" Height="21" Width="58"/>
         <TextBlock x:Name="Replication_Slave_Status" HorizontalAlignment="Left" Margin="302,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="123"/>
         <TextBlock x:Name="Replication_status" HorizontalAlignment="Left" Margin="302,9,0,0" TextWrapping="Wrap" Text="Replication status" VerticalAlignment="Top" Height="21" Width="100"/>
@@ -26,9 +26,9 @@
         <TextBlock x:Name="Master_State" HorizontalAlignment="Left" Margin="193,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="102"/>
         <Button Name="Slave_Monitor" Content="Slave monitoring" HorizontalAlignment="Left" Margin="393,36,0,0" VerticalAlignment="Top" Width="107" Click="Button_Click_Monitoring" Block.IsHyphenationEnabled="True" RenderTransformOrigin="0.383,0.545" Grid.Row="1"/>
         <TextBlock x:Name="Text_Primary_IP" HorizontalAlignment="Left" Margin="10,95,0,0" TextWrapping="Wrap" Text="Primary IP" VerticalAlignment="Top" Height="35" Width="58"/>
-        <TextBox x:Name="Primary_IP" HorizontalAlignment="Left" Margin="72,95,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="Primary_IP_TextChanged"/>
+        <TextBox x:Name="Primary_IP" HorizontalAlignment="Left" Margin="72,95,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="IP_TextChanged"/>
         <TextBlock x:Name="Test_DB" HorizontalAlignment="Left" Margin="10,124,0,0" TextWrapping="Wrap" Text="Database" VerticalAlignment="Top" Height="35" Width="58" Grid.RowSpan="2"/>
-        <TextBox x:Name="Testing_DB" HorizontalAlignment="Left" Margin="73,121,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="Testing_DB_TextChanged" Grid.RowSpan="2" />
+        <TextBox x:Name="Testing_DB" HorizontalAlignment="Left" Margin="73,121,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="IP_TextChanged" Grid.RowSpan="2" />
 
     </Grid>
 </Window>
