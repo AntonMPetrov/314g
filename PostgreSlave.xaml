@@ -17,14 +17,14 @@
         <TextBlock x:Name="Replication_Slave_Status" HorizontalAlignment="Left" Margin="302,35,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="123"/>
         <TextBlock x:Name="Replication_status" HorizontalAlignment="Left" Margin="302,9,0,0" TextWrapping="Wrap" Text="Replication status" VerticalAlignment="Top" Height="21" Width="100"/>
         <TextBlock x:Name="Text_Warning" HorizontalAlignment="Left" Margin="10,64,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="52" Width="222" Grid.Row="1"/>
-        <Button Name="Button_Click" Content="Test" HorizontalAlignment="Left" Margin="114,37,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_Test" Grid.Row="1"/>
+        <Button Name="TestButton" Content="Test" HorizontalAlignment="Left" Margin="114,37,0,0" VerticalAlignment="Top" Width="75" Click="Button_Click_Test" Grid.Row="1"/>
         <TextBlock x:Name="Running_task" HorizontalAlignment="Left" Margin="10,121,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Height="59" Width="497" RenderTransformOrigin="0.93,0.506" Grid.Row="1"/>
         <TextBlock x:Name="Program_State" HorizontalAlignment="Left" Margin="195,37,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="193" Grid.Row="1"/>
         <TextBlock x:Name="Replication_Master_Status" HorizontalAlignment="Left" Margin="302,60,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="100"/>
         <TextBlock x:Name="Slave_State" HorizontalAlignment="Left" Margin="193,33,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="102"/>
         <TextBlock x:Name="Text_Copy2" HorizontalAlignment="Left" Margin="195,8,0,0" TextWrapping="Wrap" Text="State" VerticalAlignment="Top" Height="21" Width="58"/>
         <TextBlock x:Name="Master_State" HorizontalAlignment="Left" Margin="193,59,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="102"/>
-        <Button Name="Slave_Monitor" Content="Slave monitoring" HorizontalAlignment="Left" Margin="393,36,0,0" VerticalAlignment="Top" Width="107" Click="Button_Click_Monitoring" Block.IsHyphenationEnabled="True" RenderTransformOrigin="0.383,0.545" Grid.Row="1"/>
+        <Button Name="SlaveMonitorButton" Content="Slave monitoring" HorizontalAlignment="Left" Margin="393,36,0,0" VerticalAlignment="Top" Width="107" Click="Button_Click_Monitoring" Block.IsHyphenationEnabled="True" RenderTransformOrigin="0.383,0.545" Grid.Row="1"/>
         <TextBlock x:Name="Text_Primary_IP" HorizontalAlignment="Left" Margin="10,95,0,0" TextWrapping="Wrap" Text="Primary IP" VerticalAlignment="Top" Height="35" Width="58"/>
         <TextBox x:Name="Primary_IP" HorizontalAlignment="Left" Margin="72,95,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Height="21" Width="116" TextChanged="IP_TextChanged"/>
         <TextBlock x:Name="Test_DB" HorizontalAlignment="Left" Margin="10,124,0,0" TextWrapping="Wrap" Text="Database" VerticalAlignment="Top" Height="35" Width="58" Grid.RowSpan="2"/>
