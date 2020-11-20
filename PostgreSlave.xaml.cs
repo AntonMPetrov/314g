@@ -35,7 +35,6 @@ namespace PostgreSlave
         public string MasterConnectionString = ";User Id=postgres;Password=postgres;Database=";
         public string SlaveConnectionString = ";User Id=postgres;Password=postgres;Database=";
         public int CountOfTest = 10;
-        bool fileBackup = false;
         public bool createTestTableFlag = false;
 
         public MainWindow()
@@ -84,14 +83,12 @@ namespace PostgreSlave
             Running_task.Text = "";
             Error_List.Text = "";
             Program_State.Text = "Testing...";
-            if (!fileBackup)
+
+            if (MessageBox.Show("Do you want backup your work files?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
             {
-                if (MessageBox.Show("Do you want backup your work files?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
-                {
-                    BackupSlaveSetting();
-                }
-                fileBackup = true;
+                BackupSlaveSetting();
             }
+           
             MasterConnectionString = $"Server={Master_IP.Text}{MasterConnectionString}{Testing_DB.Text};";
             SlaveConnectionString = $"Server={Slave_IP.Text}{SlaveConnectionString}{Testing_DB.Text};";
             if (!createTestTableFlag)
@@ -288,20 +285,16 @@ namespace PostgreSlave
             return output;
         }
 
-        public bool CreateTestTable()
+        public void CreateTestTable()
         {
-            bool output;
             if (TestDB(MasterConnectionString, "create table testofcluster (hint int)") == DBTestResult.Success)
             {
                 createTestTableFlag = true;
-                output = true;
             }
             else
             {
                 MessageBox.Show($"Can't create test-table 'testofcluster' in database '{Testing_DB.Text}'.");
-                output = false;
             }
-            return output;
         }
 
         public DBTestResult TestDB(string connectionString, string executeCommand)
@@ -350,15 +343,13 @@ namespace PostgreSlave
             return output;
         }
 
-        public bool BackupSlaveSetting()
+        public void BackupSlaveSetting()
         {
-            bool output;
             try
             {
                 if (Directory.Exists(slaveBackupDir))
                 {
                     Error_List.Text = "Backup exists already (backupSlaveSetting). Delete it to provide new save.";
-                    output = false;
                 }
                 else
                 {
@@ -366,16 +357,12 @@ namespace PostgreSlave
                     File.Copy($@"{psqlDataDir}\recovery.conf", $@"{slaveBackupDir}\recovery.conf");
                     File.Copy($@"{psqlDataDir}\postgresql.conf", $@"{slaveBackupDir}\postgresql.conf");
                     File.Copy($@"{psqlDataDir}\postgresql.auto.conf", $@"{slaveBackupDir}\postgresql.auto.conf");
-                    output = true;
                 }
             }
             catch (Exception ex)
             {
                 Error_List.Text = $"Backup is failed: {ex}";
-                output = false;
             }
-
-            return output;
         }
 
         public void CheckIPsAvalaible()
