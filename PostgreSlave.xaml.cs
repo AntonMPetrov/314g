@@ -40,9 +40,6 @@ namespace PostgreSlave
         public MainWindow()
         {
             InitializeComponent();
-            TestButton.IsEnabled = false;
-            SlaveMonitorButton.IsEnabled = false;
-            
         }
 
         public void Reconnect(string ip)
@@ -64,8 +61,8 @@ namespace PostgreSlave
                     Ping pingSender = new Ping();
                     IPAddress address = IPAddress.Parse(ip);
                     PingReply reply = pingSender.Send(address);
-                    if (reply.Status == IPStatus.Success) { }
-                    else break;
+
+                    if (reply.Status != IPStatus.Success) break;
                 }
                 catch (Exception a)
                 {
@@ -84,7 +81,8 @@ namespace PostgreSlave
             Error_List.Text = "";
             Program_State.Text = "Testing...";
 
-            if (MessageBox.Show("Do you want backup your work files?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+            if (MessageBox.Show("Do you want backup your work files?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) 
+                == MessageBoxResult.Yes)
             {
                 BackupSlaveSetting();
             }
@@ -153,8 +151,7 @@ namespace PostgreSlave
             MessageBox.Show("После нажатия кнопки \"ОК\" и в случае если мастер будет недоступен, слейв перейдёт в режим записи.", "Внимание!", MessageBoxButton.OK, MessageBoxImage.Warning);
             while (true)
             {
-                if (!TestNode(testMaster))
-                    break;
+                if (!TestNode(testMaster)) break;
             }
             BecameSlaveToMaster();
             Program_State.Text = "Monitor has stopped.";
@@ -195,7 +192,11 @@ namespace PostgreSlave
             //сделать циклическую проверку
             string ip = Primary_IP.Text;
             Task.Factory.StartNew(() => Reconnect(ip));
-            while (CheckIP(Primary_IP.Text) == true) ;//System.Windows.MessageBox.Show("Primary IP is still busy! Check you network connection.");             
+            while (CheckIP(Primary_IP.Text))
+            {
+                ;//System.Windows.MessageBox.Show("Primary IP is still busy! Check you network connection.");             
+            }
+
             File.WriteAllText($@"{psqlDataDir}\startmaster", "Go!");
             Running_task.Text = "Became slave to master...";
             ChangeIPto(Primary_IP.Text, "255.255.255.0");
