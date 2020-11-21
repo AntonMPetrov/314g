@@ -76,70 +76,72 @@ namespace PostgreSlave
 
         private void Button_Click_Test(object sender, RoutedEventArgs e)
         {
-            CheckIPsAvalaible();
-            Running_task.Text = "";
-            Error_List.Text = "";
-            Program_State.Text = "Testing...";
+            if (CheckIP(Slave_IP.Text) && CheckIP(Master_IP.Text) && CheckIP(Primary_IP.Text))
+            {
+                Running_task.Text = "";
+                Error_List.Text = "";
+                Program_State.Text = "Testing...";
 
-            if (MessageBox.Show("Do you want backup your work files?", "", MessageBoxButton.YesNo, MessageBoxImage.Question) 
-                == MessageBoxResult.Yes)
-            {
-                BackupSlaveSetting();
-            }
-           
-            MasterConnectionString = $"Server={Master_IP.Text}{MasterConnectionString}{Testing_DB.Text};";
-            SlaveConnectionString = $"Server={Slave_IP.Text}{SlaveConnectionString}{Testing_DB.Text};";
-            if (!createTestTableFlag)
-            {
-                CreateTestTable();
-            }
-            Slave_State.Text = TestNode(testSlave) ? "Slave" : "DOWN!";
-
-            if (TestDB(SlaveConnectionString, "insert into testofcluster values ('1')") == DBTestResult.ReadOnly)
-            {
-                Slave_State.Text = "Slave";
-            }
-            else
-            {
-                Replication_Slave_Status.Text = "No replication!";
-                Slave_State.Text = "Master";
-            }
-
-            if (TestNode(testMaster))
-            {
-                Master_State.Text = "Master";
-                NpgsqlConnection connectionToDB = new NpgsqlConnection(MasterConnectionString);
-                connectionToDB.Open();
-                NpgsqlCommand commandToExecute = new NpgsqlCommand("select (active) from pg_replication_slots", connectionToDB);
-                NpgsqlDataReader data = commandToExecute.ExecuteReader();
-                while (data.Read())
+                if (MessageBox.Show("Do you want backup your work files?", "", MessageBoxButton.YesNo, MessageBoxImage.Question)
+                    == MessageBoxResult.Yes)
                 {
-                    if (data[0].ToString() == "True")
-                    {
-                        Replication_Master_Status.Text = "Working";
-                    }
-                    else
-                    {
-                        Replication_Master_Status.Text = "Didn't work!";
-                    }
+                    BackupSlaveSetting();
                 }
-                connectionToDB.Close();
-            }
-            else
-            {
-                string errorMessage = "Test-table 'testofcluster' on master-host is not avalible. Do you want to try to create it?";
-                if (MessageBox.Show(errorMessage, "Error", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+
+                MasterConnectionString = $"Server={Master_IP.Text}{MasterConnectionString}{Testing_DB.Text};";
+                SlaveConnectionString = $"Server={Slave_IP.Text}{SlaveConnectionString}{Testing_DB.Text};";
+                if (!createTestTableFlag)
                 {
                     CreateTestTable();
                 }
-                Replication_Master_Status.Text = "DOWN!";
+                Slave_State.Text = TestNode(testSlave) ? "Slave" : "DOWN!";
+
+                if (TestDB(SlaveConnectionString, "insert into testofcluster values ('1')") == DBTestResult.ReadOnly)
+                {
+                    Slave_State.Text = "Slave";
+                }
+                else
+                {
+                    Replication_Slave_Status.Text = "No replication!";
+                    Slave_State.Text = "Master";
+                }
+
+                if (TestNode(testMaster))
+                {
+                    Master_State.Text = "Master";
+                    NpgsqlConnection connectionToDB = new NpgsqlConnection(MasterConnectionString);
+                    connectionToDB.Open();
+                    NpgsqlCommand commandToExecute = new NpgsqlCommand("select (active) from pg_replication_slots", connectionToDB);
+                    NpgsqlDataReader data = commandToExecute.ExecuteReader();
+                    while (data.Read())
+                    {
+                        if (data[0].ToString() == "True")
+                        {
+                            Replication_Master_Status.Text = "Working";
+                        }
+                        else
+                        {
+                            Replication_Master_Status.Text = "Didn't work!";
+                        }
+                    }
+                    connectionToDB.Close();
+                }
+                else
+                {
+                    string errorMessage = "Test-table 'testofcluster' on master-host is not avalible. Do you want to try to create it?";
+                    if (MessageBox.Show(errorMessage, "Error", MessageBoxButton.YesNo, MessageBoxImage.Question) == MessageBoxResult.Yes)
+                    {
+                        CreateTestTable();
+                    }
+                    Replication_Master_Status.Text = "DOWN!";
+                }
+
+                SlaveMonitorButton.IsEnabled = (Slave_State.Text == "Slave") && (Master_State.Text == "Master") && (Replication_Master_Status.Text == "Working");
+
+                Program_State.Text = $"Done. ({CountOfTest})";
+                MasterConnectionString = DefaultDBConnectionString;
+                SlaveConnectionString = DefaultDBConnectionString;
             }
-
-            SlaveMonitorButton.IsEnabled = (Slave_State.Text == "Slave") && (Master_State.Text == "Master") && (Replication_Master_Status.Text == "Working");
-
-            Program_State.Text = $"Done. ({CountOfTest})";
-            MasterConnectionString = DefaultDBConnectionString;
-            SlaveConnectionString = DefaultDBConnectionString;
         }
 
         private void Button_Click_Monitoring(object sender, RoutedEventArgs e)
@@ -177,7 +179,7 @@ namespace PostgreSlave
                     output = false;
                 }
             }
-            catch (Exception)
+            catch (Exception ex)
             {
                 //a.ToString();
                 MessageBox.Show($"Incorrect IP: {ip}");
@@ -365,13 +367,7 @@ namespace PostgreSlave
                 Error_List.Text = $"Backup is failed: {ex}";
             }
         }
-
-        public void CheckIPsAvalaible()
-        {
-            CheckIP(Slave_IP.Text);
-            CheckIP(Master_IP.Text);
-            CheckIP(Primary_IP.Text);
-        }
+        
         private void IP_TextChanged(object sender, TextChangedEventArgs e)
         {
             TestButton.IsEnabled = (Slave_IP.Text != "") && (Master_IP.Text != "") && (Primary_IP.Text != "") && (Testing_DB.Text != "");
