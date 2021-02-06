@@ -1,4 +1,6 @@
-﻿using Npgsql;
+﻿// This is an independent project of an individual developer. Dear PVS-Studio, please check it.
+// PVS-Studio Static Code Analyzer for C, C++ and C#: http://www.viva64.com
+using Npgsql;
 using System;
 using System.IO;
 using System.Linq;
@@ -276,11 +278,11 @@ namespace PostgreSlave
             switch (nodeToTest)
             {
                 case testMaster:
-                    if (TestDB(SlaveConnectionString, "select count(*) from testofcluster") == DBTestResult.Success)
+                    if (TestDB(MasterConnectionString) == DBTestResult.Success)
                         output = true;
                     break;
                 case testSlave:
-                    if (TestDB(SlaveConnectionString, "select count(*) from testofcluster") == DBTestResult.Success)
+                    if (TestDB(SlaveConnectionString) == DBTestResult.Success)
                         output = true;
                     break;
             }
@@ -300,7 +302,7 @@ namespace PostgreSlave
             }
         }
 
-        public DBTestResult TestDB(string connectionString, string executeCommand)
+        public DBTestResult TestDB(string connectionString, string executeCommand = "select count(*) from testofcluster")
         {
             DBTestResult output;
             NpgsqlConnection connectionToDB = null;
