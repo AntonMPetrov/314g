@@ -181,7 +181,7 @@ namespace PostgreSlave
                     output = false;
                 }
             }
-            catch (Exception ex)
+            catch 
             {
                 //a.ToString();
                 MessageBox.Show($"Incorrect IP: {ip}");
@@ -213,7 +213,7 @@ namespace PostgreSlave
             IPAddress output = null;
             var @interface = NetworkInterface.GetAllNetworkInterfaces().
                 Where(n => n.OperationalStatus == OperationalStatus.Up).FirstOrDefault();
-            
+
             if (@interface != null)
             {
                 output = @interface.GetIPProperties().GatewayAddresses.FirstOrDefault()?.Address;
@@ -369,7 +369,7 @@ namespace PostgreSlave
                 Error_List.Text = $"Backup is failed: {ex}";
             }
         }
-        
+
         private void IP_TextChanged(object sender, TextChangedEventArgs e)
         {
             TestButton.IsEnabled = (Slave_IP.Text != "") && (Master_IP.Text != "") && (Primary_IP.Text != "") && (Testing_DB.Text != "");
